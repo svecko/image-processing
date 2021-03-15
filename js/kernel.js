@@ -1,18 +1,19 @@
-const canvas = document.getElementById('canvas');
-const ctx = canvas.getContext('2d');
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
 
-const buttonGrayscale = document.getElementById('button-grayscale');
-const buttonBoxBlur = document.getElementById('button-box-blur');
-const buttonGaussianBlur = document.getElementById('button-gaussian-blur');
-const buttonSobelOperator = document.getElementById('button-sobel-operator');
+const buttonGrayscale = document.getElementById("button-grayscale");
+const buttonBoxBlur = document.getElementById("button-box-blur");
+const buttonGaussianBlur = document.getElementById("button-gaussian-blur");
+const buttonSharpen = document.getElementById("button-sharpen");
+const buttonSobelOperator = document.getElementById("button-sobel-operator");
 const buttonLaplacianOperator = document.getElementById(
-  'button-laplacian-operator'
+  "button-laplacian-operator"
 );
 
 const img = new Image();
 
 function loadImage() {
-  img.src = 'img/portret.jpg';
+  img.src = "img/portret.jpg";
 
   img.onload = () => {
     canvas.width = img.width;
@@ -70,7 +71,15 @@ buttonGaussianBlur.onclick = () => {
 };
 
 buttonSobelOperator.onclick = () => {
-  const sobelOperatorMatrix = {
+  const sobelOperatorMatrixX = {
+    matrix: [
+      [1, 0, -1],
+      [2, 0, -2],
+      [1, 0, -1],
+    ],
+    matrixMultiply: 1,
+  };
+  const sobelOperatorMatrixY = {
     matrix: [
       [1, 2, 1],
       [0, 0, 0],
@@ -78,7 +87,8 @@ buttonSobelOperator.onclick = () => {
     ],
     matrixMultiply: 1,
   };
-  applyMatrix(img, sobelOperatorMatrix);
+  toGrayscale(img);
+  applyMatrix(img, sobelOperatorMatrixX);
 };
 
 buttonLaplacianOperator.onclick = () => {
@@ -90,21 +100,35 @@ buttonLaplacianOperator.onclick = () => {
     ],
     matrixMultiply: 1,
   };
+  toGrayscale(img);
   applyMatrix(img, laplacianOperatorMatrix);
+};
+
+buttonSharpen.onclick = () => {
+  const sharpenMatrix = {
+    matrix: [
+      [0, -1, 0],
+      [-1, 5, -1],
+      [0, -1, 0],
+    ],
+    matrixMultiply: 1,
+  };
+  applyMatrix(img, sharpenMatrix);
 };
 
 function applyMatrix(image, matrix) {
   const imgData = ctx.getImageData(0, 0, image.width, image.height);
+  const imgData1 = ctx.getImageData(0, 0, image.width, image.height);
   for (let x = 1; x < image.width - 1; x++) {
     for (let y = 1; y < image.height - 1; y++) {
       const index = x * 4 + y * image.width * 4;
 
       let sumRed =
-        imgData.data[(x - 1) * 4 + (y + 1) * image.width * 4] *
+        imgData.data[(x - 1) * 4 + (y - 1) * image.width * 4] *
           matrix.matrix[0][0] + // Top left
-        imgData.data[(x + 0) * 4 + (y + 1) * image.width * 4] *
+        imgData.data[(x + 0) * 4 + (y - 1) * image.width * 4] *
           matrix.matrix[0][1] + // Top center
-        imgData.data[(x + 1) * 4 + (y + 1) * image.width * 4] *
+        imgData.data[(x + 1) * 4 + (y - 1) * image.width * 4] *
           matrix.matrix[0][2] + // Top right
         imgData.data[(x - 1) * 4 + (y + 0) * image.width * 4] *
           matrix.matrix[1][0] + // Mid left
@@ -112,19 +136,19 @@ function applyMatrix(image, matrix) {
           matrix.matrix[1][1] + // Current pixel
         imgData.data[(x + 1) * 4 + (y + 0) * image.width * 4] *
           matrix.matrix[1][2] + // Mid right
-        imgData.data[(x - 1) * 4 + (y - 1) * image.width * 4] *
+        imgData.data[(x - 1) * 4 + (y + 1) * image.width * 4] *
           matrix.matrix[2][0] + // Low left
-        imgData.data[(x + 0) * 4 + (y - 1) * image.width * 4] *
+        imgData.data[(x + 0) * 4 + (y + 1) * image.width * 4] *
           matrix.matrix[2][1] + // Low center
-        imgData.data[(x + 1) * 4 + (y - 1) * image.width * 4] *
+        imgData.data[(x + 1) * 4 + (y + 1) * image.width * 4] *
           matrix.matrix[2][2]; // Low right
 
       let sumGreen =
-        imgData.data[(x - 1) * 4 + (y + 1) * image.width * 4 + 1] *
+        imgData.data[(x - 1) * 4 + (y - 1) * image.width * 4 + 1] *
           matrix.matrix[0][0] + // Top left
-        imgData.data[(x + 0) * 4 + (y + 1) * image.width * 4 + 1] *
+        imgData.data[(x + 0) * 4 + (y - 1) * image.width * 4 + 1] *
           matrix.matrix[0][1] + // Top center
-        imgData.data[(x + 1) * 4 + (y + 1) * image.width * 4 + 1] *
+        imgData.data[(x + 1) * 4 + (y - 1) * image.width * 4 + 1] *
           matrix.matrix[0][2] + // Top right
         imgData.data[(x - 1) * 4 + (y + 0) * image.width * 4 + 1] *
           matrix.matrix[1][0] + // Mid left
@@ -132,19 +156,19 @@ function applyMatrix(image, matrix) {
           matrix.matrix[1][1] + // Current pixel
         imgData.data[(x + 1) * 4 + (y + 0) * image.width * 4 + 1] *
           matrix.matrix[1][2] + // Mid right
-        imgData.data[(x - 1) * 4 + (y - 1) * image.width * 4 + 1] *
+        imgData.data[(x - 1) * 4 + (y + 1) * image.width * 4 + 1] *
           matrix.matrix[2][0] + // Low left
-        imgData.data[(x + 0) * 4 + (y - 1) * image.width * 4 + 1] *
+        imgData.data[(x + 0) * 4 + (y + 1) * image.width * 4 + 1] *
           matrix.matrix[2][1] + // Low center
-        imgData.data[(x + 1) * 4 + (y - 1) * image.width * 4 + 1] *
+        imgData.data[(x + 1) * 4 + (y + 1) * image.width * 4 + 1] *
           matrix.matrix[2][2]; // Low right
 
       let sumBlue =
-        imgData.data[(x - 1) * 4 + (y + 1) * image.width * 4 + 2] *
+        imgData.data[(x - 1) * 4 + (y - 1) * image.width * 4 + 2] *
           matrix.matrix[0][0] + // Top left
-        imgData.data[(x + 0) * 4 + (y + 1) * image.width * 4 + 2] *
+        imgData.data[(x + 0) * 4 + (y - 1) * image.width * 4 + 2] *
           matrix.matrix[0][1] + // Top center
-        imgData.data[(x + 1) * 4 + (y + 1) * image.width * 4 + 2] *
+        imgData.data[(x + 1) * 4 + (y - 1) * image.width * 4 + 2] *
           matrix.matrix[0][2] + // Top right
         imgData.data[(x - 1) * 4 + (y + 0) * image.width * 4 + 2] *
           matrix.matrix[1][0] + // Mid left
@@ -152,17 +176,17 @@ function applyMatrix(image, matrix) {
           matrix.matrix[1][1] + // Current pixel
         imgData.data[(x + 1) * 4 + (y + 0) * image.width * 4 + 2] *
           matrix.matrix[1][2] + // Mid right
-        imgData.data[(x - 1) * 4 + (y - 1) * image.width * 4 + 2] *
+        imgData.data[(x - 1) * 4 + (y + 1) * image.width * 4 + 2] *
           matrix.matrix[2][0] + // Low left
-        imgData.data[(x + 0) * 4 + (y - 1) * image.width * 4 + 2] *
+        imgData.data[(x + 0) * 4 + (y + 1) * image.width * 4 + 2] *
           matrix.matrix[2][1] + // Low center
-        imgData.data[(x + 1) * 4 + (y - 1) * image.width * 4 + 2] *
+        imgData.data[(x + 1) * 4 + (y + 1) * image.width * 4 + 2] *
           matrix.matrix[2][2]; // Low right
 
-      imgData.data[index] = sumRed * matrix.matrixMultiply;
-      imgData.data[index + 1] = sumGreen * matrix.matrixMultiply;
-      imgData.data[index + 2] = sumBlue * matrix.matrixMultiply;
+      imgData1.data[index] = sumRed * matrix.matrixMultiply;
+      imgData1.data[index + 1] = sumGreen * matrix.matrixMultiply;
+      imgData1.data[index + 2] = sumBlue * matrix.matrixMultiply;
     }
   }
-  ctx.putImageData(imgData, 0, 0);
+  ctx.putImageData(imgData1, 0, 0);
 }
