@@ -10,17 +10,75 @@
   <body>
     <main>
       <div class="btn-container">
-        <button class="btn" id="button-grayscale">Grayscale</button>
-        <button class="btn" id="button-box-blur">Box blur</button>
-        <button class="btn" id="button-gaussian-blur">Gaussian blur</button>
-        <button class="btn" id="button-sharpen">Sharpen</button>
-        <button class="btn" id="button-sobel-operator">Sobel operator</button>
-        <button class="btn" id="button-laplacian-operator">
-          Laplacian operator
-        </button>
-        <button class="btn" id="button-median-filter">Median filter</button>
-        <button class="btn" id="button-merge">Merge</button>
-        <button class="btn btn-reset" id="button-reset">Reset</button>
+        <div class="subbtn">
+          <button class="btn btn-first">Pixel Processing</button>
+          <div class="subbtn-group subbtn-group-first">
+            <button class="btn btn-first" id="button-grayscale">
+              Grayscale
+            </button>
+            <button class="btn" id="button-negative">Negative</button>
+            <div class="subsubbtn">
+              <button class="btn">Gamma correction</button>
+              <div class="subsubbtn-group">
+                <input
+                  type="range"
+                  id="slider-gamma"
+                  class="sldr sldr-first sldr-last"
+                />
+              </div>
+            </div>
+            <div class="subsubbtn">
+              <button class="btn">Color balance</button>
+              <div class="subsubbtn-group">
+                <input
+                  type="range"
+                  id="slider-color-red"
+                  class="sldr sldr-first"
+                />
+                <input type="range" id="slider-color-green" class="sldr" />
+                <input
+                  type="range"
+                  id="slider-color-blue"
+                  class="sldr sldr-last"
+                />
+              </div>
+            </div>
+            <div class="subsubbtn">
+              <button class="btn btn-last">Threshold</button>
+              <div class="subsubbtn-group">
+                <input
+                  type="range"
+                  id="slider-threshold"
+                  class="sldr sldr-first sldr-last"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="subbtn">
+          <button class="btn">Kernel Processing</button>
+          <div class="subbtn-group">
+            <button class="btn btn-first" id="button-box-blur">Box blur</button>
+            <button class="btn" id="button-gaussian-blur">Gaussian blur</button>
+            <button class="btn" id="button-sharpen">Sharpen</button>
+            <button class="btn" id="button-sobel-operator">
+              Sobel operator
+            </button>
+            <button class="btn btn-last" id="button-laplacian-operator">
+              Laplacian operator
+            </button>
+          </div>
+        </div>
+        <div class="subbtn">
+          <button class="btn">Filters</button>
+          <div class="subbtn-group">
+            <button class="btn btn-first" id="button-median-filter">
+              Median filter
+            </button>
+            <button class="btn btn-last" id="button-merge">Merge</button>
+          </div>
+        </div>
+        <button class="btn btn-reset btn-last" id="button-reset">Reset</button>
       </div>
       <div class="canvas-container">
         <canvas id="canvas"></canvas>
