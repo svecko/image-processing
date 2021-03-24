@@ -12,6 +12,8 @@ const buttonLaplacianOperator = document.getElementById(
 const buttonMedianFilter = document.getElementById('button-median-filter');
 const buttonMerge = document.getElementById('button-merge');
 const buttonReset = document.getElementById('button-reset');
+const buttonNegative = document.getElementById('button-negative');
+const sliderGamma = document.getElementById('slider-gamma');
 
 const img = new Image();
 const albert = new Image();
@@ -102,6 +104,10 @@ loadImage();
 
 buttonGrayscale.onclick = () => {
   toGrayscale(img);
+};
+
+buttonNegative.onclick = () => {
+  toNegative(img);
 };
 
 buttonBoxBlur.onclick = () => {
@@ -280,6 +286,21 @@ function applyAlpha(image, alpha) {
   const imgData = ctx.getImageData(0, 0, image.width, image.height);
   for (let i = 0; i < imgData.data.length; i += 4) {
     imgData.data[i + 3] = alpha;
+  }
+
+  ctx.putImageData(imgData, 0, 0);
+}
+
+function toNegative(image) {
+  const imgData = ctx.getImageData(0, 0, image.width, image.height);
+  for (let i = 0; i < imgData.data.length; i += 4) {
+    const red = imgData.data[i];
+    const green = imgData.data[i + 1];
+    const blue = imgData.data[i + 2];
+
+    imgData.data[i] = 255 - red;
+    imgData.data[i + 1] = 255 - green;
+    imgData.data[i + 2] = 255 - blue;
   }
 
   ctx.putImageData(imgData, 0, 0);
