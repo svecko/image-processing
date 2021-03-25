@@ -30,71 +30,78 @@ const thresholdValue = document.getElementById('threshold-value');
 const sliderThreshold = document.getElementById('slider-threshold');
 const buttonThresholdApply = document.getElementById('button-threshold-apply');
 
+const fileUploader = document.getElementById('file-uploader');
+const selectedImage = document.getElementById('file-upload');
+
+let originalImageData;
+
 const img = new Image();
-const albert = new Image();
-const marilyn = new Image();
+
+selectedImage.onchange = () => {
+  img.src = URL.createObjectURL(selectedImage.files[0]);
+  loadImage(img);
+  canvas.classList.remove('hidden');
+  fileUploader.classList.add('hidden');
+};
 
 const matrices = {
   boxBlur: {
     matrix: [
       [1, 1, 1],
       [1, 1, 1],
-      [1, 1, 1]
+      [1, 1, 1],
     ],
-    matrixMultiply: 1 / 9
+    matrixMultiply: 1 / 9,
   },
   gaussianBlur: {
     matrix: [
       [1, 2, 1],
       [2, 4, 2],
-      [1, 2, 1]
+      [1, 2, 1],
     ],
-    matrixMultiply: 1 / 16
+    matrixMultiply: 1 / 16,
   },
   sobelOperatorX: {
     matrix: [
       [1, 0, -1],
       [2, 0, -2],
-      [1, 0, -1]
+      [1, 0, -1],
     ],
-    matrixMultiply: 1
+    matrixMultiply: 1,
   },
   sobelOperatorY: {
     matrix: [
       [1, 2, 1],
       [0, 0, 0],
-      [-1, -2, -1]
+      [-1, -2, -1],
     ],
-    matrixMultiply: 1
+    matrixMultiply: 1,
   },
   laplacianOperator: {
     matrix: [
       [-1, -1, -1],
       [-1, 8, -1],
-      [-1, -1, -1]
+      [-1, -1, -1],
     ],
-    matrixMultiply: 1
+    matrixMultiply: 1,
   },
   sharpen: {
     matrix: [
       [0, -1, 0],
       [-1, 5, -1],
-      [0, -1, 0]
+      [0, -1, 0],
     ],
-    matrixMultiply: 1
-  }
+    matrixMultiply: 1,
+  },
 };
 
-function loadImage() {
-  img.src = 'img/portret.jpg';
-  albert.src = 'img/albert.jpg';
-  marilyn.src = 'img/marilyn.jpg';
+function loadImage(image) {
+  image.onload = () => {
+    canvas.width = image.width;
+    canvas.height = image.height;
 
-  img.onload = () => {
-    canvas.width = img.width;
-    canvas.height = img.height;
-
-    ctx.drawImage(img, 0, 0);
+    ctx.drawImage(image, 0, 0);
+    originalImageData = ctx.getImageData(0, 0, image.width, image.height);
   };
 }
 
@@ -114,8 +121,6 @@ function toGrayscale(image) {
 
   ctx.putImageData(imgData, 0, 0);
 }
-
-loadImage();
 
 buttonGrayscale.onclick = () => {
   toGrayscale(img);
@@ -194,7 +199,7 @@ buttonThresholdApply.onclick = () => {
 };
 
 buttonReset.onclick = () => {
-  loadImage();
+  ctx.putImageData(originalImageData, 0, 0);
 };
 
 function applyMatrix(image, matrix) {
@@ -288,7 +293,7 @@ function applyMedian(image) {
         imgData.data[(x + 1) * 4 + (y + 0) * image.width * 4], // Mid right
         imgData.data[(x - 1) * 4 + (y + 1) * image.width * 4], // Low left
         imgData.data[(x + 0) * 4 + (y + 1) * image.width * 4], // Low center
-        imgData.data[(x + 1) * 4 + (y + 1) * image.width * 4] // Low right
+        imgData.data[(x + 1) * 4 + (y + 1) * image.width * 4], // Low right
       ];
 
       const arrGreen = [
@@ -300,7 +305,7 @@ function applyMedian(image) {
         imgData.data[(x + 1) * 4 + (y + 0) * image.width * 4 + 1], // Mid right
         imgData.data[(x - 1) * 4 + (y + 1) * image.width * 4 + 1], // Low left
         imgData.data[(x + 0) * 4 + (y + 1) * image.width * 4 + 1], // Low center
-        imgData.data[(x + 1) * 4 + (y + 1) * image.width * 4 + 1] // Low right
+        imgData.data[(x + 1) * 4 + (y + 1) * image.width * 4 + 1], // Low right
       ];
 
       const arrBlue = [
@@ -312,7 +317,7 @@ function applyMedian(image) {
         imgData.data[(x + 1) * 4 + (y + 0) * image.width * 4 + 2], // Mid right
         imgData.data[(x - 1) * 4 + (y + 1) * image.width * 4 + 2], // Low left
         imgData.data[(x + 0) * 4 + (y + 1) * image.width * 4 + 2], // Low center
-        imgData.data[(x + 1) * 4 + (y + 1) * image.width * 4 + 2] // Low right
+        imgData.data[(x + 1) * 4 + (y + 1) * image.width * 4 + 2], // Low right
       ];
 
       arrRed.sort((a, b) => {

@@ -5,6 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="css/style.css" />
+    <link href="https://css.gg/css?=add.css" rel="stylesheet" />
     <title>Image Processing</title>
   </head>
   <body>
@@ -20,9 +21,7 @@
             <div class="subsubbtn">
               <button class="btn">Gamma correction</button>
               <div class="subsubbtn-group">
-                <p class="txt txt-first" id="gamma-value">
-                  𝛾 = 1.00
-                </p>
+                <p class="txt txt-first" id="gamma-value">𝛾 = 1.00</p>
                 <input
                   type="range"
                   id="slider-gamma"
@@ -40,9 +39,7 @@
             <div class="subsubbtn">
               <button class="btn">Color balance</button>
               <div class="subsubbtn-group">
-                <p class="txt txt-first" id="red-value">
-                  Red: 0%
-                </p>
+                <p class="txt txt-first" id="red-value">Red: 0%</p>
                 <input
                   type="range"
                   id="slider-color-red"
@@ -52,9 +49,7 @@
                   value="0"
                   step="0.01"
                 />
-                <p class="txt" id="green-value">
-                  Green: 0%
-                </p>
+                <p class="txt" id="green-value">Green: 0%</p>
                 <input
                   type="range"
                   id="slider-color-green"
@@ -64,9 +59,7 @@
                   value="0"
                   step="0.01"
                 />
-                <p class="txt" id="blue-value">
-                  Blue: 0%
-                </p>
+                <p class="txt" id="blue-value">Blue: 0%</p>
                 <input
                   type="range"
                   id="slider-color-blue"
@@ -128,7 +121,13 @@
         <button class="btn btn-reset btn-last" id="button-reset">Reset</button>
       </div>
       <div class="canvas-container">
-        <canvas id="canvas"></canvas>
+        <canvas id="canvas" class="hidden"></canvas>
+        <input type="file" id="" />
+        <label class="file-upload" id="file-uploader">
+          <input type="file" accept="image/*" id="file-upload" />
+          <i class="gg-add"></i>
+          <p class="file-upload-txt">Add your image</p>
+        </label>
       </div>
     </main>
     <script src="js/kernel.js"></script>
