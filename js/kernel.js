@@ -10,7 +10,6 @@ const buttonLaplacianOperator = document.getElementById(
   'button-laplacian-operator'
 );
 const buttonMedianFilter = document.getElementById('button-median-filter');
-const buttonMerge = document.getElementById('button-merge');
 const buttonReset = document.getElementById('button-reset');
 const buttonNegative = document.getElementById('button-negative');
 
@@ -33,9 +32,13 @@ const buttonThresholdApply = document.getElementById('button-threshold-apply');
 const fileUploader = document.getElementById('file-uploader');
 const selectedImage = document.getElementById('file-upload');
 
+const mergeUploader = document.getElementById('merge-uploader');
+const imageToMerge = document.getElementById('merge-upload');
+
 let originalImageData;
 
 const img = new Image();
+const mergedImg = new Image();
 
 selectedImage.onchange = () => {
   img.src = URL.createObjectURL(selectedImage.files[0]);
@@ -43,6 +46,17 @@ selectedImage.onchange = () => {
   canvas.classList.remove('hidden');
   fileUploader.classList.add('hidden');
 };
+
+mergeUploader.onchange = () => {
+  mergedImg.src = URL.createObjectURL(imageToMerge.files[0]);
+
+  mergedImg.onload = () => {
+    ctx.globalAlpha = 1.0;
+    ctx.drawImage(img, 0, 0);
+    ctx.globalAlpha = 0.5;
+    ctx.drawImage(mergedImg, 0, 0);
+  };
+}
 
 const matrices = {
   boxBlur: {
@@ -154,10 +168,6 @@ buttonSharpen.onclick = () => {
 
 buttonMedianFilter.onclick = () => {
   applyMedian(img);
-};
-
-buttonMerge.onclick = () => {
-  applyAlpha(img, 10);
 };
 
 sliderGamma.oninput = () => {
@@ -338,15 +348,6 @@ function applyMedian(image) {
     }
   }
   ctx.putImageData(imgDataCopy, 0, 0);
-}
-
-function applyAlpha(image, alpha) {
-  const imgData = ctx.getImageData(0, 0, image.width, image.height);
-  for (let i = 0; i < imgData.data.length; i += 4) {
-    imgData.data[i + 3] = alpha;
-  }
-
-  ctx.putImageData(imgData, 0, 0);
 }
 
 function toNegative(image) {
