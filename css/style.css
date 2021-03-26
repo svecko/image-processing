@@ -100,21 +100,18 @@ input[type='file'] {
   margin: 0.5rem 0;
   width: 12rem;
   height: 2.75rem;
+  background: none;
 }
 
 .btn-reset {
   margin-top: auto;
 }
 
-.btn-first,
-.sldr-first,
-.txt-first {
+.first {
   margin-top: 2rem;
 }
 
-.btn-last,
-.sldr-last,
-.txt-last {
+.last {
   margin-bottom: 2rem;
 }
 
