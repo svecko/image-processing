@@ -35,10 +35,29 @@ const selectedImage = document.getElementById('file-upload');
 const mergeUploader = document.getElementById('merge-uploader');
 const imageToMerge = document.getElementById('merge-upload');
 
+const buttonPartApply = document.getElementById('button-part-apply');
+
+const imageX1 = document.getElementById('image-part-x1');
+const imageY1 = document.getElementById('image-part-y1');
+const imageX2 = document.getElementById('image-part-x2');
+const imageY2 = document.getElementById('image-part-y2');
+
+let x1;
+let x2;
+let x3;
+let x4;
+
 let originalImageData;
 
 const img = new Image();
 const mergedImg = new Image();
+
+buttonPartApply.onclick = () => {
+  x1 = imageX1.value;
+  y1 = imageY1.value;
+  x2 = imageX2.value;
+  y2 = imageY2.value;
+};
 
 selectedImage.onchange = () => {
   img.src = URL.createObjectURL(selectedImage.files[0]);
@@ -113,14 +132,19 @@ function loadImage(image) {
   image.onload = () => {
     canvas.width = image.width;
     canvas.height = image.height;
-
+    imageX2.placeholder = `X2: ${image.width}px`;
+    imageY2.placeholder = `Y2: ${image.height}px`;
+    x1 = 0;
+    y1 = 0;
+    x2 = image.width;
+    y2 = image.height;
     ctx.drawImage(image, 0, 0);
     originalImageData = ctx.getImageData(0, 0, image.width, image.height);
   };
 }
 
 function toGrayscale(image) {
-  const imgData = ctx.getImageData(0, 0, image.width, image.height);
+  const imgData = ctx.getImageData(x1, y1, x2, y2);
   for (let i = 0; i < imgData.data.length; i += 4) {
     const red = imgData.data[i];
     const green = imgData.data[i + 1];
@@ -133,7 +157,7 @@ function toGrayscale(image) {
     imgData.data[i + 2] = grayscale;
   }
 
-  ctx.putImageData(imgData, 0, 0);
+  ctx.putImageData(imgData, x1, y1);
 }
 
 buttonGrayscale.onclick = () => {
@@ -213,70 +237,72 @@ buttonReset.onclick = () => {
 };
 
 function applyMatrix(image, matrix) {
-  const imgData = ctx.getImageData(0, 0, image.width, image.height);
-  const imgDataCopy = ctx.getImageData(0, 0, image.width, image.height);
-  for (let x = 1; x < image.width - 1; x++) {
-    for (let y = 1; y < image.height - 1; y++) {
-      const index = x * 4 + y * image.width * 4;
+  console.log(x1, y1, x2, y2);
+
+  const imgData = ctx.getImageData(x1, y1, x2, y2);
+  const imgDataCopy = ctx.getImageData(x1, y1, x2, y2);
+  for (let x = 1; x < x2 - 1; x++) {
+    for (let y = 1; y < y2 - 1; y++) {
+      const index = x * 4 + y * x2 * 4;
 
       const sumRed =
-        imgData.data[(x - 1) * 4 + (y - 1) * image.width * 4] *
+        imgData.data[(x - 1) * 4 + (y - 1) * x2 * 4] *
           matrix.matrix[0][0] + // Top left
-        imgData.data[(x + 0) * 4 + (y - 1) * image.width * 4] *
+        imgData.data[(x + 0) * 4 + (y - 1) * x2 * 4] *
           matrix.matrix[0][1] + // Top center
-        imgData.data[(x + 1) * 4 + (y - 1) * image.width * 4] *
+        imgData.data[(x + 1) * 4 + (y - 1) * x2 * 4] *
           matrix.matrix[0][2] + // Top right
-        imgData.data[(x - 1) * 4 + (y + 0) * image.width * 4] *
+        imgData.data[(x - 1) * 4 + (y + 0) * x2 * 4] *
           matrix.matrix[1][0] + // Mid left
-        imgData.data[(x + 0) * 4 + (y + 0) * image.width * 4] *
+        imgData.data[(x + 0) * 4 + (y + 0) * x2 * 4] *
           matrix.matrix[1][1] + // Current pixel
-        imgData.data[(x + 1) * 4 + (y + 0) * image.width * 4] *
+        imgData.data[(x + 1) * 4 + (y + 0) * x2 * 4] *
           matrix.matrix[1][2] + // Mid right
-        imgData.data[(x - 1) * 4 + (y + 1) * image.width * 4] *
+        imgData.data[(x - 1) * 4 + (y + 1) * x2 * 4] *
           matrix.matrix[2][0] + // Low left
-        imgData.data[(x + 0) * 4 + (y + 1) * image.width * 4] *
+        imgData.data[(x + 0) * 4 + (y + 1) * x2 * 4] *
           matrix.matrix[2][1] + // Low center
-        imgData.data[(x + 1) * 4 + (y + 1) * image.width * 4] *
+        imgData.data[(x + 1) * 4 + (y + 1) * x2 * 4] *
           matrix.matrix[2][2]; // Low right
 
       const sumGreen =
-        imgData.data[(x - 1) * 4 + (y - 1) * image.width * 4 + 1] *
+        imgData.data[(x - 1) * 4 + (y - 1) * x2 * 4 + 1] *
           matrix.matrix[0][0] + // Top left
-        imgData.data[(x + 0) * 4 + (y - 1) * image.width * 4 + 1] *
+        imgData.data[(x + 0) * 4 + (y - 1) * x2 * 4 + 1] *
           matrix.matrix[0][1] + // Top center
-        imgData.data[(x + 1) * 4 + (y - 1) * image.width * 4 + 1] *
+        imgData.data[(x + 1) * 4 + (y - 1) * x2 * 4 + 1] *
           matrix.matrix[0][2] + // Top right
-        imgData.data[(x - 1) * 4 + (y + 0) * image.width * 4 + 1] *
+        imgData.data[(x - 1) * 4 + (y + 0) * x2 * 4 + 1] *
           matrix.matrix[1][0] + // Mid left
-        imgData.data[(x + 0) * 4 + (y + 0) * image.width * 4 + 1] *
+        imgData.data[(x + 0) * 4 + (y + 0) * x2 * 4 + 1] *
           matrix.matrix[1][1] + // Current pixel
-        imgData.data[(x + 1) * 4 + (y + 0) * image.width * 4 + 1] *
+        imgData.data[(x + 1) * 4 + (y + 0) * x2 * 4 + 1] *
           matrix.matrix[1][2] + // Mid right
-        imgData.data[(x - 1) * 4 + (y + 1) * image.width * 4 + 1] *
+        imgData.data[(x - 1) * 4 + (y + 1) * x2 * 4 + 1] *
           matrix.matrix[2][0] + // Low left
-        imgData.data[(x + 0) * 4 + (y + 1) * image.width * 4 + 1] *
+        imgData.data[(x + 0) * 4 + (y + 1) * x2 * 4 + 1] *
           matrix.matrix[2][1] + // Low center
-        imgData.data[(x + 1) * 4 + (y + 1) * image.width * 4 + 1] *
+        imgData.data[(x + 1) * 4 + (y + 1) * x2 * 4 + 1] *
           matrix.matrix[2][2]; // Low right
 
       const sumBlue =
-        imgData.data[(x - 1) * 4 + (y - 1) * image.width * 4 + 2] *
+        imgData.data[(x - 1) * 4 + (y - 1) * x2 * 4 + 2] *
           matrix.matrix[0][0] + // Top left
-        imgData.data[(x + 0) * 4 + (y - 1) * image.width * 4 + 2] *
+        imgData.data[(x + 0) * 4 + (y - 1) * x2 * 4 + 2] *
           matrix.matrix[0][1] + // Top center
-        imgData.data[(x + 1) * 4 + (y - 1) * image.width * 4 + 2] *
+        imgData.data[(x + 1) * 4 + (y - 1) * x2 * 4 + 2] *
           matrix.matrix[0][2] + // Top right
-        imgData.data[(x - 1) * 4 + (y + 0) * image.width * 4 + 2] *
+        imgData.data[(x - 1) * 4 + (y + 0) * x2 * 4 + 2] *
           matrix.matrix[1][0] + // Mid left
-        imgData.data[(x + 0) * 4 + (y + 0) * image.width * 4 + 2] *
+        imgData.data[(x + 0) * 4 + (y + 0) * x2 * 4 + 2] *
           matrix.matrix[1][1] + // Current pixel
-        imgData.data[(x + 1) * 4 + (y + 0) * image.width * 4 + 2] *
+        imgData.data[(x + 1) * 4 + (y + 0) * x2 * 4 + 2] *
           matrix.matrix[1][2] + // Mid right
-        imgData.data[(x - 1) * 4 + (y + 1) * image.width * 4 + 2] *
+        imgData.data[(x - 1) * 4 + (y + 1) * x2 * 4 + 2] *
           matrix.matrix[2][0] + // Low left
-        imgData.data[(x + 0) * 4 + (y + 1) * image.width * 4 + 2] *
+        imgData.data[(x + 0) * 4 + (y + 1) * x2 * 4 + 2] *
           matrix.matrix[2][1] + // Low center
-        imgData.data[(x + 1) * 4 + (y + 1) * image.width * 4 + 2] *
+        imgData.data[(x + 1) * 4 + (y + 1) * x2 * 4 + 2] *
           matrix.matrix[2][2]; // Low right
 
       imgDataCopy.data[index] = sumRed * matrix.matrixMultiply;
@@ -284,50 +310,50 @@ function applyMatrix(image, matrix) {
       imgDataCopy.data[index + 2] = sumBlue * matrix.matrixMultiply;
     }
   }
-  ctx.putImageData(imgDataCopy, 0, 0);
+  ctx.putImageData(imgDataCopy, x1, y1);
 }
 
 function applyMedian(image) {
-  const imgData = ctx.getImageData(0, 0, image.width, image.height);
-  const imgDataCopy = ctx.getImageData(0, 0, image.width, image.height);
-  for (let x = 1; x < image.width - 1; x++) {
-    for (let y = 1; y < image.height - 1; y++) {
-      const index = x * 4 + y * image.width * 4;
+  const imgData = ctx.getImageData(x1, y1, x2, y2);
+  const imgDataCopy = ctx.getImageData(x1, y1, x2, y2);
+  for (let x = 1; x < x2 - 1; x++) {
+    for (let y = 1; y < y2 - 1; y++) {
+      const index = x * 4 + y * x2 * 4;
 
       const arrRed = [
-        imgData.data[(x - 1) * 4 + (y - 1) * image.width * 4], // Top left
-        imgData.data[(x + 0) * 4 + (y - 1) * image.width * 4], // Top center
-        imgData.data[(x + 1) * 4 + (y - 1) * image.width * 4], // Top right
-        imgData.data[(x - 1) * 4 + (y + 0) * image.width * 4], // Mid left
-        imgData.data[(x + 0) * 4 + (y + 0) * image.width * 4], // Current pixel
-        imgData.data[(x + 1) * 4 + (y + 0) * image.width * 4], // Mid right
-        imgData.data[(x - 1) * 4 + (y + 1) * image.width * 4], // Low left
-        imgData.data[(x + 0) * 4 + (y + 1) * image.width * 4], // Low center
-        imgData.data[(x + 1) * 4 + (y + 1) * image.width * 4], // Low right
+        imgData.data[(x - 1) * 4 + (y - 1) * x2 * 4], // Top left
+        imgData.data[(x + 0) * 4 + (y - 1) * x2 * 4], // Top center
+        imgData.data[(x + 1) * 4 + (y - 1) * x2 * 4], // Top right
+        imgData.data[(x - 1) * 4 + (y + 0) * x2 * 4], // Mid left
+        imgData.data[(x + 0) * 4 + (y + 0) * x2 * 4], // Current pixel
+        imgData.data[(x + 1) * 4 + (y + 0) * x2 * 4], // Mid right
+        imgData.data[(x - 1) * 4 + (y + 1) * x2 * 4], // Low left
+        imgData.data[(x + 0) * 4 + (y + 1) * x2 * 4], // Low center
+        imgData.data[(x + 1) * 4 + (y + 1) * x2 * 4], // Low right
       ];
 
       const arrGreen = [
-        imgData.data[(x - 1) * 4 + (y - 1) * image.width * 4 + 1], // Top left
-        imgData.data[(x + 0) * 4 + (y - 1) * image.width * 4 + 1], // Top center
-        imgData.data[(x + 1) * 4 + (y - 1) * image.width * 4 + 1], // Top right
-        imgData.data[(x - 1) * 4 + (y + 0) * image.width * 4 + 1], // Mid left
-        imgData.data[(x + 0) * 4 + (y + 0) * image.width * 4 + 1], // Current pixel
-        imgData.data[(x + 1) * 4 + (y + 0) * image.width * 4 + 1], // Mid right
-        imgData.data[(x - 1) * 4 + (y + 1) * image.width * 4 + 1], // Low left
-        imgData.data[(x + 0) * 4 + (y + 1) * image.width * 4 + 1], // Low center
-        imgData.data[(x + 1) * 4 + (y + 1) * image.width * 4 + 1], // Low right
+        imgData.data[(x - 1) * 4 + (y - 1) * x2 * 4 + 1], // Top left
+        imgData.data[(x + 0) * 4 + (y - 1) * x2 * 4 + 1], // Top center
+        imgData.data[(x + 1) * 4 + (y - 1) * x2 * 4 + 1], // Top right
+        imgData.data[(x - 1) * 4 + (y + 0) * x2 * 4 + 1], // Mid left
+        imgData.data[(x + 0) * 4 + (y + 0) * x2 * 4 + 1], // Current pixel
+        imgData.data[(x + 1) * 4 + (y + 0) * x2 * 4 + 1], // Mid right
+        imgData.data[(x - 1) * 4 + (y + 1) * x2 * 4 + 1], // Low left
+        imgData.data[(x + 0) * 4 + (y + 1) * x2 * 4 + 1], // Low center
+        imgData.data[(x + 1) * 4 + (y + 1) * x2 * 4 + 1], // Low right
       ];
 
       const arrBlue = [
-        imgData.data[(x - 1) * 4 + (y - 1) * image.width * 4 + 2], // Top left
-        imgData.data[(x + 0) * 4 + (y - 1) * image.width * 4 + 2], // Top center
-        imgData.data[(x + 1) * 4 + (y - 1) * image.width * 4 + 2], // Top right
-        imgData.data[(x - 1) * 4 + (y + 0) * image.width * 4 + 2], // Mid left
-        imgData.data[(x + 0) * 4 + (y + 0) * image.width * 4 + 2], // Current pixel
-        imgData.data[(x + 1) * 4 + (y + 0) * image.width * 4 + 2], // Mid right
-        imgData.data[(x - 1) * 4 + (y + 1) * image.width * 4 + 2], // Low left
-        imgData.data[(x + 0) * 4 + (y + 1) * image.width * 4 + 2], // Low center
-        imgData.data[(x + 1) * 4 + (y + 1) * image.width * 4 + 2], // Low right
+        imgData.data[(x - 1) * 4 + (y - 1) * x2 * 4 + 2], // Top left
+        imgData.data[(x + 0) * 4 + (y - 1) * x2 * 4 + 2], // Top center
+        imgData.data[(x + 1) * 4 + (y - 1) * x2 * 4 + 2], // Top right
+        imgData.data[(x - 1) * 4 + (y + 0) * x2 * 4 + 2], // Mid left
+        imgData.data[(x + 0) * 4 + (y + 0) * x2 * 4 + 2], // Current pixel
+        imgData.data[(x + 1) * 4 + (y + 0) * x2 * 4 + 2], // Mid right
+        imgData.data[(x - 1) * 4 + (y + 1) * x2 * 4 + 2], // Low left
+        imgData.data[(x + 0) * 4 + (y + 1) * x2 * 4 + 2], // Low center
+        imgData.data[(x + 1) * 4 + (y + 1) * x2 * 4 + 2], // Low right
       ];
 
       arrRed.sort((a, b) => {
@@ -347,11 +373,11 @@ function applyMedian(image) {
       imgDataCopy.data[index + 2] = arrBlue[4];
     }
   }
-  ctx.putImageData(imgDataCopy, 0, 0);
+  ctx.putImageData(imgDataCopy, x1, y1);
 }
 
 function toNegative(image) {
-  const imgData = ctx.getImageData(0, 0, image.width, image.height);
+  const imgData = ctx.getImageData(x1, y1, x2, y2);
   for (let i = 0; i < imgData.data.length; i += 4) {
     const red = imgData.data[i];
     const green = imgData.data[i + 1];
@@ -362,11 +388,11 @@ function toNegative(image) {
     imgData.data[i + 2] = 255 - blue;
   }
 
-  ctx.putImageData(imgData, 0, 0);
+  ctx.putImageData(imgData, x1, y1);
 }
 
 function correctGamma(image, gamma) {
-  const imgData = ctx.getImageData(0, 0, image.width, image.height);
+  const imgData = ctx.getImageData(x1, y1, x2, y2);
   const gammaCorrection = 1 / gamma;
   for (let i = 0; i < imgData.data.length; i += 4) {
     const red = imgData.data[i];
@@ -378,11 +404,11 @@ function correctGamma(image, gamma) {
     imgData.data[i + 2] = 255 * Math.pow(blue / 255, gammaCorrection);
   }
 
-  ctx.putImageData(imgData, 0, 0);
+  ctx.putImageData(imgData, x1, y1);
 }
 
 function adjustColorBalance(image, redValue, greenValue, blueValue) {
-  const imgData = ctx.getImageData(0, 0, image.width, image.height);
+  const imgData = ctx.getImageData(x1, y1, x2, y2);
   for (let i = 0; i < imgData.data.length; i += 4) {
     const red = imgData.data[i];
     const green = imgData.data[i + 1];
@@ -393,11 +419,11 @@ function adjustColorBalance(image, redValue, greenValue, blueValue) {
     imgData.data[i + 2] = blue + blue * blueValue;
   }
 
-  ctx.putImageData(imgData, 0, 0);
+  ctx.putImageData(imgData, x1, y1);
 }
 
 function adjustThreshold(image, level) {
-  const imgData = ctx.getImageData(0, 0, image.width, image.height);
+  const imgData = ctx.getImageData(x1, y1, x2, y2);
   for (let i = 0; i < imgData.data.length; i += 4) {
     if (imgData.data[i] >= level) {
       imgData.data[i] = 255;
@@ -410,5 +436,5 @@ function adjustThreshold(image, level) {
     }
   }
 
-  ctx.putImageData(imgData, 0, 0);
+  ctx.putImageData(imgData, x1, y1);
 }

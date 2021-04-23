@@ -103,6 +103,16 @@ input[type='file'] {
   background: none;
 }
 
+.input {
+  margin: 0.5rem 0;
+  font-family: inherit;
+  width: 12rem;
+  height: 2.75rem;
+  border-radius: 3px;
+  outline: none;
+  border: none;
+}
+
 .btn-reset {
   margin-top: auto;
 }
